@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 import { getMeetingById } from "@/lib/meetings-db";
 
@@ -21,7 +20,7 @@ export async function GET(
             );
         }
 
-        const meeting = getMeetingById(meetingId);
+        const meeting = await getMeetingById(meetingId);
 
         if (!meeting) {
             return NextResponse.json(
@@ -31,7 +30,9 @@ export async function GET(
         }
 
         return NextResponse.json(meeting, { status: 200 });
-    } catch {
+    } catch (error) {
+        console.error("Failed to retrieve meeting:", error);
+
         return NextResponse.json(
             { error: "Failed to retrieve meeting." },
             { status: 500 }
