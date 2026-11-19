@@ -164,20 +164,129 @@ export async function getMeetingById(
     return mapMeeting(rows[0] as Record<string, unknown>);
 }
 
-// Mutation stubs for future database operations.
+// Database mutation operations.
 export async function addMeeting(
-    _data: Omit<SacramentMeeting, "id">
+    data: Omit<SacramentMeeting, "id">
 ): Promise<SacramentMeeting> {
-    throw new Error("addMeeting is not implemented yet.");
+    const sql = getSql();
+
+    const rows = await sql`
+        INSERT INTO meetings (
+            date,
+            meeting_type,
+            presiding,
+            conducting,
+            announcements,
+            opening_hymn,
+            opening_prayer,
+            ward_business,
+            stake_business,
+            sacrament_hymn,
+            speakers,
+            closing_hymn,
+            closing_prayer
+        )
+        VALUES (
+            ${data.date}::date,
+            ${data.meetingType},
+            ${data.presiding},
+            ${data.conducting},
+            ${data.announcements ?? []},
+            ${JSON.stringify(data.openingHymn)}::jsonb,
+            ${data.openingPrayer},
+            ${JSON.stringify(data.wardBusiness)}::jsonb,
+            ${data.stakeBusiness},
+            ${JSON.stringify(data.sacramentHymn)}::jsonb,
+            ${JSON.stringify(data.speakers)}::jsonb,
+            ${JSON.stringify(data.closingHymn)}::jsonb,
+            ${data.closingPrayer}
+        )
+        RETURNING
+            id,
+            to_char(date, 'YYYY-MM-DD') AS date,
+            meeting_type AS "meetingType",
+            presiding,
+            conducting,
+            announcements,
+            opening_hymn AS "openingHymn",
+            opening_prayer AS "openingPrayer",
+            ward_business AS "wardBusiness",
+            stake_business AS "stakeBusiness",
+            sacrament_hymn AS "sacramentHymn",
+            speakers,
+            closing_hymn AS "closingHymn",
+            closing_prayer AS "closingPrayer"
+    `;
+
+    return mapMeeting(rows[0] as Record<string, unknown>);
 }
 
 export async function updateMeeting(
-    _id: number,
-    _updates: Partial<SacramentMeeting>
+    id: number,
+    updates: Partial<SacramentMeeting>
 ): Promise<SacramentMeeting | null> {
-    throw new Error("updateMeeting is not implemented yet.");
+    const existingMeeting = await getMeetingById(id);
+
+    if (!existingMeeting) {
+        return null;
+    }
+
+    const data = {
+        ...existingMeeting,
+        ...updates,
+    };
+
+    const sql = getSql();
+
+    const rows = await sql`
+        UPDATE meetings
+        SET
+            date = ${data.date}::date,
+            meeting_type = ${data.meetingType},
+            presiding = ${data.presiding},
+            conducting = ${data.conducting},
+            announcements = ${data.announcements ?? []},
+            opening_hymn = ${JSON.stringify(data.openingHymn)}::jsonb,
+            opening_prayer = ${data.openingPrayer},
+            ward_business = ${JSON.stringify(data.wardBusiness)}::jsonb,
+            stake_business = ${data.stakeBusiness},
+            sacrament_hymn = ${JSON.stringify(data.sacramentHymn)}::jsonb,
+            speakers = ${JSON.stringify(data.speakers)}::jsonb,
+            closing_hymn = ${JSON.stringify(data.closingHymn)}::jsonb,
+            closing_prayer = ${data.closingPrayer}
+        WHERE id = ${id}
+        RETURNING
+            id,
+            to_char(date, 'YYYY-MM-DD') AS date,
+            meeting_type AS "meetingType",
+            presiding,
+            conducting,
+            announcements,
+            opening_hymn AS "openingHymn",
+            opening_prayer AS "openingPrayer",
+            ward_business AS "wardBusiness",
+            stake_business AS "stakeBusiness",
+            sacrament_hymn AS "sacramentHymn",
+            speakers,
+            closing_hymn AS "closingHymn",
+            closing_prayer AS "closingPrayer"
+    `;
+
+    if (rows.length === 0) {
+        return null;
+    }
+
+    return mapMeeting(rows[0] as Record<string, unknown>);
 }
 
-export async function deleteMeeting(_id: number): Promise<boolean> {
-    throw new Error("deleteMeeting is not implemented yet.");
+export async function deleteMeeting(id: number): Promise<boolean> {
+    const sql = getSql();
+
+    const rows = await sql`
+        DELETE FROM meetings
+        WHERE id = ${id}
+        RETURNING id
+    `;
+
+    return rows.length > 0;
 }

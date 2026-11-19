@@ -1,11 +1,15 @@
+
 import Link from "next/link";
 import type { SacramentMeeting } from "@/lib/types";
+import { deleteMeeting } from "@/lib/actions";
 
 interface MeetingCardProps {
     meeting: SacramentMeeting;
 }
 
 export default function MeetingCard({ meeting }: MeetingCardProps) {
+    const deleteMeetingWithId = deleteMeeting.bind(null, meeting.id);
+
     return (
         <article className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -38,12 +42,30 @@ export default function MeetingCard({ meeting }: MeetingCardProps) {
                 Conducting: {meeting.conducting}
             </p>
 
-            <Link
-                href={`/meetings/${meeting.id}`}
-                className="mt-5 inline-block rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-                View Meeting
-            </Link>
+            <div className="mt-5 flex flex-wrap gap-2">
+                <Link
+                    href={`/meetings/${meeting.id}`}
+                    className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                    View Meeting
+                </Link>
+
+                <Link
+                    href={`/meetings/${meeting.id}/edit`}
+                    className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                    Edit Meeting
+                </Link>
+
+                <form action={deleteMeetingWithId}>
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >
+                        Delete Meeting
+                    </button>
+                </form>
+            </div>
         </article>
     );
 }

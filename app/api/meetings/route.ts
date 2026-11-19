@@ -1,4 +1,4 @@
-
+import { connection } from "next/server";
 import { NextRequest, NextResponse } from "next/server";
 import {
     getMeetings,
@@ -6,6 +6,8 @@ import {
 } from "@/lib/meetings-db";
 
 export async function GET(request: NextRequest) {
+    await connection();
+
     try {
         const date = request.nextUrl.searchParams.get("date");
 
