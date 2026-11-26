@@ -1,4 +1,5 @@
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import MeetingCard from "@/components/MeetingCard";
@@ -8,6 +9,12 @@ import {
     getMeetings,
     getMeetingsTotalPages,
 } from "@/lib/meetings-db";
+
+export const metadata: Metadata = {
+    title: "Sacrament Meetings",
+    description:
+        "Browse sacrament meeting programs, schedules, hymns, prayers, and speakers.",
+};
 
 interface MeetingsPageProps {
     searchParams: Promise<{

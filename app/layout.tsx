@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -18,8 +17,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sacrament Meeting Planner",
+  metadataBase: new URL("https://sacrament-meetings-blue.vercel.app"),
+  title: {
+    default: "Sacrament Meeting Planner",
+    template: "%s | Sacrament Meeting Planner",
+  },
   description: "Plan and view sacrament meeting programs.",
+  openGraph: {
+    title: "Sacrament Meeting Planner",
+    description: "Plan and view sacrament meeting programs.",
+    siteName: "Sacrament Meeting Planner",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

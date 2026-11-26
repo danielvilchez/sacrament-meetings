@@ -4,12 +4,21 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { auth } from "@/auth";
 
 import {
     addMeeting,
     updateMeeting as updateMeetingInDb,
     deleteMeeting as deleteMeetingInDb,
 } from "@/lib/meetings-db";
+
+async function requireAdminSession() {
+    const session = await auth();
+
+    if (!session?.user) {
+        redirect("/login");
+    }
+}
 
 const hymnSchema = z.object({
     number: z.coerce.number().int().positive("Enter a valid hymn number."),
@@ -136,6 +145,8 @@ export async function createMeeting(
     _previousState: MeetingFormState,
     formData: FormData
 ): Promise<MeetingFormState> {
+    await requireAdminSession();
+
     const validatedFields = MeetingFormSchema.safeParse(
         parseMeetingFormData(formData)
     );
@@ -165,6 +176,8 @@ export async function updateMeeting(
     _previousState: MeetingFormState,
     formData: FormData
 ): Promise<MeetingFormState> {
+    await requireAdminSession();
+
     const validatedId = meetingIdSchema.safeParse(id);
 
     if (!validatedId.success) {
@@ -209,6 +222,8 @@ export async function deleteMeeting(
     id: number,
     _formData: FormData
 ): Promise<void> {
+    await requireAdminSession();
+
     void _formData;
 
     const validatedId = meetingIdSchema.safeParse(id);
